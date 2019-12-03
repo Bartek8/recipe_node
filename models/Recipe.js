@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const slugify = require('slugify');
 
 nameLenght = 30;
-instructionsLength = 500;
-descriptionLength = 300;
+instructionsLength = 800;
+descriptionLength = 500;
 
 const RecipeSchema = new mongoose.Schema({
     name: {
