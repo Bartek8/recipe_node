@@ -58,6 +58,7 @@ const RecipeSchema = new mongoose.Schema({
             'Anglo-Indian',
             'Arab',
             'Armenian',
+            'American',
             'Assyrian',
             'Awadhi',
             'Azerbaijani',
@@ -134,7 +135,12 @@ const RecipeSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    slug: String
+    slug: String,
+    user: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+        required: true
+    }
 })
 
 // Create recipe slug

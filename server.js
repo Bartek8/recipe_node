@@ -5,6 +5,7 @@ const connectDb = require('./config/db')
 const error = require('./middleware/error')
 const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
+const fileupload = require('express-fileupload')
 
 dotenv.config({
     path: './config/config.env'
@@ -20,14 +21,22 @@ app.use(express.json());
 //Cookie parser
 app.use(cookieParser());
 
+app.use(fileupload())
+
 //dev login middleware
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'))
 }
 
 const recipe = require('./routes/recipe')
+const auth = require('./routes/auth')
+const user = require('./routes/user')
+const review = require('./routes/review')
 
 app.use('/recipe', recipe);
+app.use('/auth', auth)
+app.use('/user', user)
+app.use('/reviews', review)
 
 app.use(error);
 
@@ -35,7 +44,7 @@ const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, console.log(`Server running on port ${PORT}`.cyan))
 
-process.on('unhandledRejection', (err, promise) => {
+process.on('unhandledRejection', (err) => {
     console.log(`Error: ${err.message}`.red);
     server.close(() => process.exit(1));
 })

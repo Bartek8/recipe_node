@@ -4,17 +4,29 @@ const {
     getRecipes,
     deleteRecipe,
     updateRecipe,
-    createRecipe
+    createRecipe,
+    recipePhotoUpload
 } = require('../controllers/recipe')
 
-const Recipe = require('../models/Recipe')
-
-const filter = require('../middleware/filter')
-
+const reviewRouter = require('./review');
 const router = express.Router();
 
-router.route('/').get(filter(Recipe), getRecipes).post(createRecipe)
+// Middleware
+const {
+    protect,
+    authorize
+} = require('../middleware/auth')
+const filter = require('../middleware/filter')
 
-router.route('/:id').get(getRecipe).put(updateRecipe).delete(deleteRecipe)
+// Models
+const Recipe = require('../models/Recipe')
 
+router.use('/:recipeId/reviews', reviewRouter)
+
+// CRUD
+router.route('/').get(filter(Recipe), getRecipes).post(protect, authorize('user', 'admin'), createRecipe)
+
+router.route('/:id').get(getRecipe).put(protect, authorize('user', 'admin'), updateRecipe).delete(protect, authorize('user', 'admin'), deleteRecipe)
+
+router.route('/:id/photo').put(protect, authorize('user', 'admin'), recipePhotoUpload)
 module.exports = router;
