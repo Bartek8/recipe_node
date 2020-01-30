@@ -33,4 +33,44 @@ const ReviewSchema = new mongoose.Schema({
     }
 })
 
+ReviewSchema.index({
+    recipe: 1,
+    user: 1,
+}, {
+    unique: true
+})
+
+ReviewSchema.statics.avgRate = async function (recipeId) {
+    const object = await this.aggregate([{
+            $match: {
+                recipe: recipeId
+            }
+        },
+        {
+            $group: {
+                _id: '$recipe',
+                averageRating: {
+                    $avg: '$rating'
+                }
+            }
+        }
+    ]);
+
+    try {
+        await this.model('Recipe').findByIdAndUpdate(recipeId, {
+            averageRating: object[0].averageRating
+        })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+ReviewSchema.pre('save', function () {
+    this.constructor.avgRate(this.recipe);
+})
+
+ReviewSchema.post('remove', function () {
+    this.constructor.avgRate(this.recipe);
+})
+
 module.exports = mongoose.model('Review', ReviewSchema)

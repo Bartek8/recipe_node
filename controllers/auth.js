@@ -10,14 +10,20 @@ exports.register = asyncHandler(async (req, res, next) => {
         name,
         email,
         password,
-        role
+        role,
+        terms
     } = req.body;
+
+    if (terms === false) {
+        return next(new ErrorResponse('Please accept the terms', 400));
+    }
 
     const user = await User.create({
         name,
         email,
         password,
-        role
+        role,
+        terms
     })
 
     sendTokenResponse(user, 200, res)

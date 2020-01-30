@@ -6,6 +6,7 @@ const error = require('./middleware/error')
 const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
 const fileupload = require('express-fileupload')
+const path = require('path')
 
 dotenv.config({
     path: './config/config.env'
@@ -22,6 +23,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(fileupload())
+
+// Set static folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 //dev login middleware
 if (process.env.NODE_ENV === 'development') {

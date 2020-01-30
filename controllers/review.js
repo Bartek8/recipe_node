@@ -1,15 +1,17 @@
 const Review = require("../models/Review");
 const Recipe = require("../models/Recipe")
+const User = require('../models/User')
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require('../middleware/async');
 
 // @desc    Get reviews
 // @route   GET /reviews
 // @route   GET /recipe/:recipeId/reviews
+// @route   GET /user/:userId/reviews
 // @access  Public
 exports.getReviews = asyncHandler(async (req, res, next) => {
 
-    // Fin review with ID equal recipeId
+    // FinD review with ID equal recipeId
     if (req.params.recipeId) {
         const reviews = await Review.find({
             recipe: req.params.recipeId
@@ -20,10 +22,20 @@ exports.getReviews = asyncHandler(async (req, res, next) => {
             count: reviews.length,
             data: reviews
         })
+    } else if (req.params.userId) {
+        const reviews = await Review.find({
+            user: req.params.userId
+        })
+
+        return res.status(200).json({
+            succes: true,
+            data: reviews
+        })
     } else {
         res.status(200).json(res.filter);
     }
 })
+
 
 // @desc    Get single review
 // @route   GET /reviews/:id

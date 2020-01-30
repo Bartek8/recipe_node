@@ -28,6 +28,10 @@ const UserSchema = new mongoose.Schema({
         match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/, "Minimum length: 8 characters, at least one big and one small letter"],
         select: false
     },
+    terms: {
+        type: Boolean,
+        required: [true, "Please accept the terms"]
+    },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     CreatedAt: {
