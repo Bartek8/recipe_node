@@ -136,6 +136,9 @@ const RecipeSchema = new mongoose.Schema({
         default: Date.now
     },
     slug: String,
+    arrayOfName: {
+        type: [String]
+    },
     user: {
         type: mongoose.Schema.ObjectId,
         ref: 'User',
@@ -149,6 +152,8 @@ RecipeSchema.pre('save', function (next) {
         replacement: '-',
         lower: true,
     });
+
+    this.arrayOfName = this.name.toLowerCase().split(' ')
     next();
 });
 

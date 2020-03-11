@@ -2,6 +2,7 @@ const express = require('express');
 const {
     register,
     login,
+    logout,
     getMe,
     update,
     updatePassword,
@@ -16,6 +17,7 @@ const {
 router.post('/register', register)
 router.post('/login', login)
 router.get('/me', protect, getMe)
+router.get('/logout', logout)
 router.put('/update', protect, update)
 router.put('/updatepassword', protect, updatePassword)
 

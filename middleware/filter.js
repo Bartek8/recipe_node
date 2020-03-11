@@ -12,7 +12,6 @@ const filter = (model, populate) => async (req, res, next) => {
 
     // Create query string
     let queryStr = JSON.stringify(reqQuery);
-
     // Create operators ($gt,$gte, etc.) 
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)
 
@@ -40,10 +39,9 @@ const filter = (model, populate) => async (req, res, next) => {
     const limit = parseInt(req.query.limit, 10) || 100;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    const total = await model.countDocuments();
+    let total = await model.countDocuments();
 
     query = query.skip(startIndex).limit(limit);
-
     // populate
     if (populate) {
         query = query.populate(populate);
@@ -52,10 +50,11 @@ const filter = (model, populate) => async (req, res, next) => {
     // Executing our query
     const results = await query;
 
+
     // Pagination result
     const pagination = {};
-
     if (endIndex < total) {
+
         pagination.next = {
             page: page + 1,
             limit

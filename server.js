@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
 const fileupload = require('express-fileupload')
 const path = require('path')
+const cors = require('cors')
 
 dotenv.config({
     path: './config/config.env'
@@ -23,6 +24,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(fileupload())
+
+app.use(cors())
 
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
