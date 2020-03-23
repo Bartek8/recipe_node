@@ -20,12 +20,12 @@ complete the config/example-config.env file and change the name to config/config
 import data to your database:
 
 ```
-Node seeder -i
+node seeder -i
 ```
 
 to delete:
 ```
-Node seeder -d
+node seeder -d
 ```
 finally, start the server:
 
