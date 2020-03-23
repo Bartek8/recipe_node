@@ -9,7 +9,9 @@ const ReviewSchema = new mongoose.Schema({
     },
     text: {
         type: String,
-        required: [true, 'Please add a text']
+        required: [true, 'Please add a text'],
+        minlength: [10, "Please add a longer review"],
+        maxlength: [800, "Please add a shorter review"]
     },
     rating: {
         type: Number,
@@ -42,18 +44,18 @@ ReviewSchema.index({
 
 ReviewSchema.statics.avgRate = async function (recipeId) {
     const object = await this.aggregate([{
-            $match: {
-                recipe: recipeId
-            }
-        },
-        {
-            $group: {
-                _id: '$recipe',
-                averageRating: {
-                    $avg: '$rating'
-                }
+        $match: {
+            recipe: recipeId
+        }
+    },
+    {
+        $group: {
+            _id: '$recipe',
+            averageRating: {
+                $avg: '$rating'
             }
         }
+    }
     ]);
 
     try {

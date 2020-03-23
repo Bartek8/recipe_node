@@ -109,10 +109,11 @@ exports.recipePhotoUpload = asyncHandler(async (req, res, next) => {
     if (!file.mimetype.startsWith('image')) {
         next(new ErrorResponse(`Please upload a photo`, 404));
     }
-
+    console.log(file.size)
+    console.log(process.env.MAX_FILE_UPLOAD)
     // Check size of photo
-    if (!file.size > process.env.MAX_FILE_ULPOAD) {
-        next(new ErrorResponse(`Please upload an image less than ${process.env.MAX_FILE_ULPOAD}`, 404));
+    if (file.size > process.env.MAX_FILE_UPLOAD) {
+        return next(new ErrorResponse(`Please upload an image less than ${process.env.MAX_FILE_UPLOAD} bytes`, 404));
     }
 
     // Create custom filename
@@ -120,7 +121,6 @@ exports.recipePhotoUpload = asyncHandler(async (req, res, next) => {
 
     file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
         if (err) {
-            console.log(err);
             return next(new ErrorResponse(`Problem with file upload`, 500));
         }
 

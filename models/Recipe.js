@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const slugify = require('slugify');
 
 nameLenght = 30;
-instructionsLength = 800;
+instructionsLength = 1500;
 descriptionLength = 500;
 
 const RecipeSchema = new mongoose.Schema({
@@ -30,7 +30,8 @@ const RecipeSchema = new mongoose.Schema({
     averageRating: {
         type: Number,
         min: [1, 'Rating must be at least 1'],
-        max: [6, 'Rating must not be more than 6']
+        max: [5, 'Rating must not be more than 5'],
+        default: 1
     },
     serving: {
         type: Number,
@@ -114,6 +115,7 @@ const RecipeSchema = new mongoose.Schema({
             'Somali',
             'Spanish',
             'Taiwanese',
+            'Tunisia',
             'Thai',
             'Turkish',
             'Ukrainian',
