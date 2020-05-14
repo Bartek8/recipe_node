@@ -2,6 +2,7 @@ const Recipe = require('../models/Recipe')
 const ErrorResponse = require('../utils/ErrorResponse')
 const asyncHandler = require('../middleware/async');
 const path = require('path')
+
 // @desc    Get all recipes
 // @route   GET /recipes
 // @access  Public
@@ -17,7 +18,6 @@ exports.getRecipe = asyncHandler(async (req, res, next) => {
 
     if (!recipe) {
         return next(new ErrorResponse(`Recipe not found with id of ${req.params.id}`, 404));
-
     }
 
     res.status(200).json({
@@ -67,13 +67,14 @@ exports.updateRecipe = asyncHandler(async (req, res, next) => {
 // @route   DELETE /recipe/:id
 // @access  Private
 exports.deleteRecipe = asyncHandler(async (req, res, next) => {
-    const recipe = await Recipe.findById(req.params.id);
 
-    if (!recipe) {
-        next(new ErrorResponse(`Recipe not found with id of ${req.params.id}`, 404));
+    const model = await Recipe.findById(req.params.id);
+
+    if (!model) {
+        return next(new ErrorResponse(`No Recipe with the id ${req.params.id}`, 404))
     }
 
-    recipe.remove();
+    model.remove();
 
     res.status(200).json({
         succes: true,
@@ -88,7 +89,7 @@ exports.recipePhotoUpload = asyncHandler(async (req, res, next) => {
     const recipe = await Recipe.findById(req.params.id);
 
     if (!recipe) {
-        next(new ErrorResponse(`Recipe not found with id of ${req.params.id}`, 404));
+        return next(new ErrorResponse(`Recipe not found with id of ${req.params.id}`, 404));
     }
 
     if (recipe.user.toString() !== req.user.id && req.user.role !== 'admin') {
@@ -100,14 +101,14 @@ exports.recipePhotoUpload = asyncHandler(async (req, res, next) => {
         );
     }
     if (!req.files) {
-        next(new ErrorResponse(`Please upload a file`, 404));
+        return next(new ErrorResponse(`Please upload a file`, 404));
     }
 
     const file = req.files.file;
 
     // Make sure the image is a photo
     if (!file.mimetype.startsWith('image')) {
-        next(new ErrorResponse(`Please upload a photo`, 404));
+        return next(new ErrorResponse(`Please upload a photo`, 404));
     }
     console.log(file.size)
     console.log(process.env.MAX_FILE_UPLOAD)

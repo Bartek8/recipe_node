@@ -1,7 +1,10 @@
 const ErrorResponse = require('../utils/ErrorResponse')
 const asyncHandler = require('../middleware/async')
 const User = require('../models/User')
-
+const MailConfig = require('../config/email')
+const hbs = require('nodemailer-express-handlebars');
+const gmailTransport = MailConfig.GmailTransport;
+const SMTPTransport = MailConfig.SMTPTransport
 //@desc     Register user
 //@route    POST /auth/register
 //@access   Public
@@ -127,7 +130,7 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
 
     // Match old password with password in database
     if (!(await user.matchPassword(req.body.oldPassword))) {
-        return next(new ErrorResponse('Password is incorrect', 401))
+        return next(new ErrorResponse('Current password is incorrect', 401))
     }
 
     user.password = req.body.newPassword;
@@ -136,6 +139,73 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
     res.status(200).json({
         success: true,
         data: user
+    })
+})
+
+// @desc    Reset password
+// @route   GET auth/login/resetpassword
+// @access  Public
+exports.resetPassword = asyncHandler(async (req, res, next) => {
+    const { email } = req.query;
+
+    // Check for email
+    if (!email) {
+        return next(new ErrorResponse('Please enter an email', 400));
+    }
+    const user = await User.findOne({
+        email
+    }).select('+password');
+
+    if (!user) {
+        return next(new ErrorResponse(`No user with email: ${email}`, 400));
+    }
+
+    const newPassword = "Recipes" + Math.random().toString(36).slice(-8);
+    user.password = newPassword
+    await user.save();
+
+    MailConfig.ViewOption(SMTPTransport, hbs);
+    let HelperOptions = {
+        from: '"RecipeWebsite" <recipewebsite@gmail.com>',
+        to: email,
+        subject: 'Reset password',
+        template: 'test',
+        context: {
+            title: "Your password has been reset",
+            message1: `New password: `,
+            password: `${newPassword}`,
+            message2: `go to your account and change your password immediately`
+        }
+    };
+
+    //GMAIL 
+
+    // gmailTransport.sendMail(HelperOptions, (error, info) => {
+    //     if (error) {
+    //         return next(new ErrorResponse('Error in sandmail', 404))
+    //     }
+    //     res.status(200).json({
+    //         success: true,
+    //         data: info
+    //     })
+    // });
+
+    //SMTP
+
+    SMTPTransport.verify((error, success) => {
+        if (error) {
+            return next(new ErrorResponse('Error in verify', 404))
+        } else {
+            SMTPTransport.sendMail(HelperOptions, (error, info) => {
+                if (error) {
+                    return next(new ErrorResponse('Error in sandmail', 404))
+                }
+                res.status(200).json({
+                    success: true,
+                    data: info
+                })
+            });
+        }
     })
 })
 
