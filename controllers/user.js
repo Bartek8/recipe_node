@@ -1,4 +1,4 @@
-const ErrorResponse = require("../utils/errorResponse");
+const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User')
 

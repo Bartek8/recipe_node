@@ -1,7 +1,7 @@
 const Review = require("../models/Review");
 const Recipe = require("../models/Recipe")
 const User = require('../models/User')
-const ErrorResponse = require("../utils/errorResponse");
+const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require('../middleware/async');
 
 // @desc    Get reviews

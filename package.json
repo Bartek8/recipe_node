@@ -2,7 +2,7 @@
   "name": "recipe_website",
   "version": "1.0.0",
   "description": "Backend for websites with recipes.",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "NODE_ENV=production node server",
     "dev": "nodemon server"
