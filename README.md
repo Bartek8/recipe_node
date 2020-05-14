@@ -1,6 +1,38 @@
 # Backend API Specifications
 Create the backend for websites with recipes. The frontend will be created in three different technologies, such Angular/React/Vue. 
 
+### Front-end
+
+* [React](https://github.com/Bartek8/recipe_react)
+* [Vue](https://github.com/Bartek8/recipe_vue)
+* Angular in progress
+
+## Installing
+
+Install the dependencies first
+
+```
+npm install
+```
+
+complete the config/example-config.env file and change the name to config/config.env
+
+import data to your database:
+
+```
+node seeder -i
+```
+
+to delete:
+```
+node seeder -d
+```
+finally, start the server:
+
+```
+npm run dev
+```
+
 ## Recipe
 List all recipes in the database
 limit number of results
