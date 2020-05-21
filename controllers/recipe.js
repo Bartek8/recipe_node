@@ -52,7 +52,7 @@ exports.updateRecipe = asyncHandler(async (req, res, next) => {
         );
     }
 
-    recipe = await Recipe.findOneAndUpdate(req.params.id, req.body, {
+    recipe = await Recipe.findOneAndUpdate({ _id: req.params.id }, req.body, {
         new: true,
         runValidators: true
     });

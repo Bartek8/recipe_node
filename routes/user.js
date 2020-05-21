@@ -18,8 +18,13 @@ const filter = require('../middleware/filter')
 
 router.use('/:userId/reviews', reviewRouter)
 
-router.route('/').get(filter(User), getUsers).post(createUser);
+router.route('/')
+    .get(filter(User), getUsers)
+    .post(createUser);
 
-router.route('/:id').get(getUser).put(updateUser).delete(deleteUser)
+router.route('/:id')
+    .get(getUser)
+    .put(updateUser)
+    .delete(deleteUser)
 
 module.exports = router;

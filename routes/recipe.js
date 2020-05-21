@@ -26,7 +26,10 @@ router.use('/:recipeId/reviews', reviewRouter)
 // CRUD
 router.route('/').get(filter(Recipe), getRecipes).post(protect, authorize('user', 'admin'), createRecipe)
 
-router.route('/:id').get(getRecipe).put(protect, authorize('user', 'admin'), updateRecipe).delete(protect, authorize('user', 'admin'), deleteRecipe)
+router.route('/:id')
+    .get(getRecipe)
+    .put(protect, authorize('user', 'admin'), updateRecipe)
+    .delete(protect, authorize('user', 'admin'), deleteRecipe)
 
 router.route('/:id/photo').put(protect, authorize('user', 'admin'), recipePhotoUpload)
 module.exports = router;
