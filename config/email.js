@@ -30,7 +30,7 @@ module.exports.ViewOption = (transport, hbs) => {
             extName: '.hbs',
             partialsDir: 'views\\email',
             layoutsDir: 'views\\email',
-            defaultLayout: 'test.hbs',
+            defaultLayout: 'template.hbs'
         },
         viewPath: 'views/email',
         extName: '.hbs'

@@ -2,6 +2,7 @@ const ErrorResponse = require('../utils/ErrorResponse')
 const asyncHandler = require('../middleware/async')
 const User = require('../models/User')
 const MailConfig = require('../config/email')
+const jwt = require('jsonwebtoken');
 const hbs = require('nodemailer-express-handlebars');
 const gmailTransport = MailConfig.GmailTransport;
 const SMTPTransport = MailConfig.SMTPTransport
@@ -17,7 +18,7 @@ exports.register = asyncHandler(async (req, res, next) => {
         terms
     } = req.body;
 
-    if (terms === false) {
+    if (!terms) {
         return next(new ErrorResponse('Please accept the terms', 400));
     }
 
@@ -29,8 +30,99 @@ exports.register = asyncHandler(async (req, res, next) => {
         terms
     })
 
-    sendTokenResponse(user, 200, res)
+    const token = user.getConfirmAccountToken();
+
+    MailConfig.ViewOption(gmailTransport, hbs)
+    let HelperOptions = {
+        from: '"RecipeWebsite" <recipewebsite@gmail.com>',
+        to: email,
+        subject: 'Confirm adress email',
+        template: 'template',
+        context: {
+            resetpassword: false,
+            title: "Confirm adress email",
+            link: "https://recipe-website.netlify.app/register/" + token
+        }
+    };
+    gmailTransport.sendMail(HelperOptions, (error, info) => {
+        if (error) {
+            return next(new ErrorResponse('Error in sandmail', 404))
+        }
+        res.status(200).json({
+            success: true,
+            data: info
+        })
+    });
 })
+//@desc     Confirm email
+//@route    GET /auth/confirm/:id
+//@access   Public
+exports.confirm = asyncHandler(async (req, res, next) => {
+    let user;
+    try {
+        const decoded = jwt.verify(req.params.id, process.env.JWT_ACCOUNT_SECRET)
+        user = await User.findById(decoded.id)
+    } catch (err) {
+        return next(new ErrorResponse(`Your token has expired or there is no user with this id`, 401));
+    }
+    if (user.confirmed) {
+        res.status(200).json({
+            success: true,
+            message: "The account has already been confirmed."
+        })
+    }
+    else {
+        user.confirmed = true;
+        await user.save();
+        res.status(200).json({
+            success: true,
+            message: "The account has been confirmed successfully!"
+        })
+    }
+})
+//@desc     Resend email
+//@route    POST /auth/resend
+//@access   Public
+exports.resend = asyncHandler(async (req, res, next) => {
+    const { email } = req.body;
+
+    // Check for email
+    if (!email) {
+        return next(new ErrorResponse('Please enter an email', 400));
+    }
+    const user = await User.findOne({
+        email
+    });
+
+    if (!user) {
+        return next(new ErrorResponse(`No user with email: ${email}`, 400));
+    }
+
+    const token = user.getConfirmAccountToken();
+
+    MailConfig.ViewOption(gmailTransport, hbs)
+    let HelperOptions = {
+        from: '"RecipeWebsite" <recipewebsite@gmail.com>',
+        to: email,
+        subject: 'Confirm adress email',
+        template: 'template',
+        context: {
+            resetpassword: false,
+            title: "Confirm adress email",
+            link: "https://recipe-website.netlify.app/register/" + token
+        }
+    };
+    gmailTransport.sendMail(HelperOptions, (error, info) => {
+        if (error) {
+            return next(new ErrorResponse('Error in sandmail', 404))
+        }
+        res.status(200).json({
+            success: true,
+            data: info
+        })
+    });
+})
+
 //@desc     Logout user
 //@route    POST /auth/logout
 //@access   Public
@@ -74,6 +166,10 @@ exports.login = asyncHandler(async (req, res, next) => {
     // Check password
     if (!isMatch) {
         return next(new ErrorResponse('Incorrect password or email', 400));
+    }
+
+    if (!user.confirmed) {
+        return next(new ErrorResponse('Confirm your email', 400));
     }
 
     sendTokenResponse(user, 200, res);
@@ -164,13 +260,14 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
     user.password = newPassword
     await user.save();
 
-    MailConfig.ViewOption(SMTPTransport, hbs);
+    MailConfig.ViewOption(gmailTransport, hbs);
     let HelperOptions = {
-        from: '"RecipeWebsite" <recipewebsite@gmail.com>',
+        from: '"RecipeWebsite" <website.recipe@gmail.com>',
         to: email,
         subject: 'Reset password',
-        template: 'test',
+        template: 'template',
         context: {
+            resetpassword: true,
             title: "Your password has been reset",
             message1: `New password: `,
             password: `${newPassword}`,
@@ -180,33 +277,33 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 
     //GMAIL 
 
-    // gmailTransport.sendMail(HelperOptions, (error, info) => {
-    //     if (error) {
-    //         return next(new ErrorResponse('Error in sandmail', 404))
-    //     }
-    //     res.status(200).json({
-    //         success: true,
-    //         data: info
-    //     })
-    // });
+    gmailTransport.sendMail(HelperOptions, (error, info) => {
+        if (error) {
+            return next(new ErrorResponse('Error in sandmail', 404))
+        }
+        res.status(200).json({
+            success: true,
+            data: info
+        })
+    });
 
     //SMTP
 
-    SMTPTransport.verify((error, success) => {
-        if (error) {
-            return next(new ErrorResponse('Error in verify', 404))
-        } else {
-            SMTPTransport.sendMail(HelperOptions, (error, info) => {
-                if (error) {
-                    return next(new ErrorResponse('Error in sandmail', 404))
-                }
-                res.status(200).json({
-                    success: true,
-                    data: info
-                })
-            });
-        }
-    })
+    // SMTPTransport.verify((error, success) => {
+    //     if (error) {
+    //         return next(new ErrorResponse('Error in verify', 404))
+    //     } else {
+    //         SMTPTransport.sendMail(HelperOptions, (error, info) => {
+    //             if (error) {
+    //                 return next(new ErrorResponse('Error in sandmail', 404))
+    //             }
+    //             res.status(200).json({
+    //                 success: true,
+    //                 data: info
+    //             })
+    //         });
+    //     }
+    // })
 })
 
 //Get Token from model, create cookie and send response

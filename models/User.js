@@ -32,8 +32,11 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         required: [true, "Please accept the terms"]
     },
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
+    confirmed: {
+        type: Boolean,
+        required: [true, "Please confirm your account"],
+        default: false
+    },
     CreatedAt: {
         type: Date,
         default: Date.now
@@ -55,6 +58,14 @@ UserSchema.methods.getSignedJwtToken = function () {
         id: this._id
     }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE
+    });
+};
+
+UserSchema.methods.getConfirmAccountToken = function () {
+    return jwt.sign({
+        id: this._id
+    }, process.env.JWT_ACCOUNT_SECRET, {
+        expiresIn: process.env.JWT_ACCOUNT_EXPIRE
     });
 };
 

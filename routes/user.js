@@ -12,19 +12,23 @@ const router = express.Router({
     mergeParams: true
 });
 
-const User = require('../models/User')
-const filter = require('../middleware/filter')
+// Middleware
+const {
+    protect,
+    authorize
+} = require('../middleware/auth')
 
+const User = require('../models/User')
 
 router.use('/:userId/reviews', reviewRouter)
 
 router.route('/')
-    .get(filter(User), getUsers)
-    .post(createUser);
+    .get(protect, authorize('admin'), getUsers)
+    .post(protect, authorize('admin'), createUser);
 
 router.route('/:id')
-    .get(getUser)
-    .put(updateUser)
-    .delete(deleteUser)
+    .get(protect, authorize('admin'), getUser)
+    .put(protect, authorize('admin'), updateUser)
+    .delete(protect, authorize('admin'), deleteUser)
 
 module.exports = router;

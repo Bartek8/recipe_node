@@ -1,0 +1,14 @@
+<div style="border: 1px solid black; margin: 0 20vw; padding: 10px; font-family: sans-serif; border-radius: 10px;">
+    <h4>{{title}}</h4>
+    {{#if resetpassword}}
+    <h5><span>{{message1}}</span><span style="text-decoration: underline;">{{password}}</span></h5>
+    <hr />
+    <p style="font-size: 12px;font-weight: bold; text-transform: uppercase;">{{message2}}</p>
+    {{else}}
+    <a href={{link}}>Click here to confirm account!</a>
+    <hr />
+    {{/if}}
+    <p style="font-size: 8px; text-transform: uppercase;">this message was generated automatically do not reply to
+        it
+    </p>
+</div>
